@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model dosen {
+  id         Int         @id @default(autoincrement())
+  nama       String      @db.VarChar(100)
+  nip        String      @unique @db.VarChar(20)
+  email      String      @unique @db.VarChar(100)
+  password   String      @db.VarChar(255)
+  role       String      @default("dosen") @db.VarChar(16)
+  created_at DateTime    @default(now())
+  mahasiswa  mahasiswa[] @relation("pembimbing")
+}
+
+model mahasiswa {
+  id                  Int      @id @default(autoincrement())
+  nama                String   @db.VarChar(100)
+  nim                 String   @unique(map: "nim") @db.VarChar(20)
+  email               String   @unique(map: "email") @db.VarChar(100)
+  password            String   @db.VarChar(255)
+  role                String   @default("mahasiswa") @db.VarChar(16)
+  dosen_pembimbing_id Int?
+  created_at          DateTime @default(now())
+  dosen_pembimbing    dosen?   @relation("pembimbing", fields: [dosen_pembimbing_id], references: [id])
+
+  @@index([dosen_pembimbing_id], map: "mahasiswa_dosen_pembimbing_id_fkey")
+}
